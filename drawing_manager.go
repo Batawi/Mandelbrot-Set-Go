@@ -34,27 +34,24 @@ func windowInit() *pixelgl.Window {
 }
 
 func run() {
-
-	// var camera Camera
-
 	win := windowInit()
 
-	canvas := pixelgl.NewCanvas(win.Bounds())
+	// canvas := pixelgl.NewCanvas(win.Bounds())
 
-	fractalManager(canvas)
-
-	win.SetMatrix(pixel.IM.Moved(pixel.V(0, 0)))
+	canvas := fractalManagerInit(win.Bounds())
+	fractalManagerUpdate()
 
 	for !win.Closed() {
-		// check user input -> move camera
-		// win.SetMatrix(pixel.IM.Moved( CAMERA POSSITION ))
-
 		win.Clear(colornames.Skyblue)
 		canvas.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
 		win.Update()
 	}
 }
 
+// every target has SetMatric method which might be usefull someday
+// win.SetMatrix(pixel.IM.Moved(pixel.V(0, 0)))
+
+// example of IMDRAW
 // imd := imdraw.New(nil)
 // imd.Clear()
 // imd.Color = pixel.RGB(1, 0, 0)

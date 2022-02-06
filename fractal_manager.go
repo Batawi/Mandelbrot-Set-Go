@@ -3,10 +3,19 @@ package main
 import (
 	"math/cmplx"
 
+	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 )
 
-func fractalManager(canvas *pixelgl.Canvas) {
+var canvas *pixelgl.Canvas
+
+func fractalManagerInit(bounds pixel.Rect) *pixelgl.Canvas {
+	canvas = pixelgl.NewCanvas(bounds)
+
+	return canvas
+}
+
+func fractalManagerUpdate() {
 	pixels := canvas.Pixels()
 
 	var y float64
