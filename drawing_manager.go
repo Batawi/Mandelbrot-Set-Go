@@ -9,13 +9,6 @@ import (
 const INITIAL_WINDOW_WIDTH = 1024
 const INITIAL_WINDOW_HEIGHT = 786
 
-type Camera struct {
-	camPos       pixel.Vec
-	camMoveSpeed float64
-	camZoom      float64
-	// camZoomSpeed float64
-}
-
 func windowInit() *pixelgl.Window {
 	cfg := pixelgl.WindowConfig{
 		Title:  "MandelBrot, Set, Go!",
@@ -35,9 +28,6 @@ func windowInit() *pixelgl.Window {
 
 func run() {
 	win := windowInit()
-
-	// canvas := pixelgl.NewCanvas(win.Bounds())
-
 	canvas := fractalManagerInit(win.Bounds())
 	fractalManagerUpdate()
 

@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"math/cmplx"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 )
+
+type Camera struct {
+	camPos       pixel.Vec
+	camMoveSpeed float64
+	camZoom      float64
+	// camZoomSpeed float64
+}
 
 var canvas *pixelgl.Canvas
 
@@ -16,28 +24,29 @@ func fractalManagerInit(bounds pixel.Rect) *pixelgl.Canvas {
 }
 
 func fractalManagerUpdate() {
+
+	fmt.Println(canvas.Bounds().Max.X)
+	fmt.Println(canvas.Bounds().Max.Y)
+
 	pixels := canvas.Pixels()
 
-	var y float64
-	var x float64
+	for i := 0; i < int(canvas.Bounds().Max.Y); i++ {
+		for j := 0; j < int(canvas.Bounds().Max.X); j++ {
 
-	for i := 0; i < INITIAL_WINDOW_HEIGHT; i++ {
-		for j := 0; j < INITIAL_WINDOW_WIDTH; j++ {
+			coord := complex(
+				mapValueToRange(float64(j), 0, canvas.Bounds().Max.X, -2, 2),
+				mapValueToRange(float64(i), 0, canvas.Bounds().Max.Y, -2, 2))
 
-			y = scale_value_to_range(float64(i), 0, INITIAL_WINDOW_HEIGHT, -2, 2)
-			x = scale_value_to_range(float64(j), 0, INITIAL_WINDOW_WIDTH, -2, 2)
-
-			coord := complex(x, y)
 			escaping_point := coord
 
 			c := 0
 			for c = 0; c < 20; c++ {
 				if cmplx.Abs(escaping_point) >= 4 { //4
 
-					pixels[i*4*INITIAL_WINDOW_WIDTH+j*4] = 0
-					pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+1] = 0
-					pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+2] = 0
-					pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+3] = 255
+					pixels[i*4*int(canvas.Bounds().Max.X)+j*4] = 5
+					pixels[i*4*int(canvas.Bounds().Max.X)+j*4+1] = 5
+					pixels[i*4*int(canvas.Bounds().Max.X)+j*4+2] = 5
+					pixels[i*4*int(canvas.Bounds().Max.X)+j*4+3] = 255
 					break
 				}
 				// escaping_point = cmplx.Pow(escaping_point, complex(2, 0)) + coord
@@ -45,10 +54,10 @@ func fractalManagerUpdate() {
 			}
 
 			if c == 20 {
-				pixels[i*4*INITIAL_WINDOW_WIDTH+j*4] = 255
-				pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+1] = 255
-				pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+2] = 255
-				pixels[i*4*INITIAL_WINDOW_WIDTH+j*4+3] = 255
+				pixels[i*4*int(canvas.Bounds().Max.X)+j*4] = 200
+				pixels[i*4*int(canvas.Bounds().Max.X)+j*4+1] = 200
+				pixels[i*4*int(canvas.Bounds().Max.X)+j*4+2] = 200
+				pixels[i*4*int(canvas.Bounds().Max.X)+j*4+3] = 255
 			}
 
 		}
