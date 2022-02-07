@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
@@ -27,13 +29,23 @@ func windowInit() *pixelgl.Window {
 }
 
 func run() {
-	win := windowInit()
-	canvas := fractalManagerInit(win.Bounds())
-	fractalManagerUpdate()
+	var DeltaTime float64
 
+	win := windowInit()
+	canvas := FractalManagerInit(win.Bounds(), &DeltaTime)
+	FractalManagerUpdate()
+
+	last := time.Now()
 	for !win.Closed() {
+		DeltaTime = time.Since(last).Seconds()
+		last = time.Now()
+
 		win.Clear(colornames.Skyblue)
-		canvas.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
+
+		checkUserInput(win)
+
+		canvas.Draw(win, StretchToFit(canvas, win))
+
 		win.Update()
 	}
 }
