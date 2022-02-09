@@ -1,21 +1,26 @@
-package main
+package drawing_manager
 
 import (
 	"time"
 
+	"github.com/Batawi/Mandelbrot-Set-Go/fractal_manager"
+	"github.com/Batawi/Mandelbrot-Set-Go/utils"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 )
 
-const INITIAL_WINDOW_WIDTH = 1024
-const INITIAL_WINDOW_HEIGHT = 786
+const initialWindowWidth = 1024
+const initialWindowHeight = 786
+
+var deltaTime float64
 
 func windowInit() *pixelgl.Window {
 	cfg := pixelgl.WindowConfig{
-		Title:  "MandelBrot, Set, Go!",
-		Bounds: pixel.R(0, 0, INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT),
-		VSync:  true,
+		Title:     "MandelBrot, Set, Go!",
+		Bounds:    pixel.R(0, 0, initialWindowWidth, initialWindowHeight),
+		VSync:     true,
+		Resizable: true,
 		// Undecorated: true,
 		// Position:    pixel.V(100, 100),
 	}
@@ -28,23 +33,22 @@ func windowInit() *pixelgl.Window {
 	return win
 }
 
-func run() {
-	var DeltaTime float64
+func Run() {
 
 	win := windowInit()
-	canvas := FractalManagerInit(win.Bounds(), &DeltaTime)
-	FractalManagerUpdate()
+	canvas := fractal_manager.Init(win.Bounds(), &deltaTime)
 
-	last := time.Now()
+	prevTime := time.Now()
 	for !win.Closed() {
-		DeltaTime = time.Since(last).Seconds()
-		last = time.Now()
+		deltaTime = time.Since(prevTime).Seconds()
+		prevTime = time.Now()
 
 		win.Clear(colornames.Skyblue)
 
 		checkUserInput(win)
+		fractal_manager.Update()
 
-		canvas.Draw(win, StretchToFit(canvas, win))
+		canvas.Draw(win, utils.StretchToFit(canvas, win))
 
 		win.Update()
 	}

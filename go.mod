@@ -1,4 +1,4 @@
-module first_module
+module github.com/Batawi/Mandelbrot-Set-Go
 
 go 1.17
 
