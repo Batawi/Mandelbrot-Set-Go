@@ -10,22 +10,15 @@ import (
 
 type Camera struct {
 	pos          pixel.Vec
-	moveSpeed    float64 // It is expressed as a percentage of the window size
+	moveSpeed    float64 // It is expressed as a percentage (from 0 to 1) of the window size
 	zoom         float64
 	camZoomSpeed float64
 }
 
 // --- GLOBALS ---
-// const (
-// 	initialFractalBoundsMinX float64 = -2
-// 	initialFractalBoundsMinY float64 = -2
-// 	initialFractalBoundsMaxX float64 = 2
-// 	initialFractalBoundsMaxY float64 = 2
-// )
-
 var (
 	mainCam = Camera{
-		moveSpeed:    20,
+		moveSpeed:    0.2,
 		zoom:         1,
 		camZoomSpeed: 10,
 	}
@@ -37,7 +30,7 @@ var (
 )
 
 func CameraMoveUp() {
-	mainCam.pos.Y += 0.1
+	mainCam.pos.Y += windowBounds.H() * mainCam.moveSpeed
 }
 
 func Init(bounds pixel.Rect, deltaTime *float64) *pixelgl.Canvas {
@@ -47,20 +40,7 @@ func Init(bounds pixel.Rect, deltaTime *float64) *pixelgl.Canvas {
 	fractalBounds = pixel.R(-2, -2, 2, 2)
 
 	// Set fractal view bounds according to window bounds
-
-	// if bounds.W() >= bounds.H() {
-
-	// 	// Calculate new fractal bounds height
-	// 	newH = fractalBounds.W() * windowBounds.H() / windowBounds.W()
-
-	// 	fractalBounds.Min.Y
-	// 	fractalBounds.Max.Y
-
-	// } else {
-
-	// }
-
-	utils.ScaleRectToRect(windowBounds, fractalBounds)
+	fractalBounds = utils.ScaleRectToRect(windowBounds, fractalBounds)
 
 	return canvas
 }

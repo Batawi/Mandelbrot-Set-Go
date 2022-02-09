@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"fmt"
-
 	"github.com/faiface/pixel"
 )
 
@@ -23,9 +21,6 @@ func StretchToFit(a, b pixel.Picture) pixel.Matrix {
 // Scale rectangle B to have same proportions as rect A while keeping
 // longer edge untouched and center of B in same place
 func ScaleRectToRect(A pixel.Rect, B pixel.Rect) pixel.Rect {
-	fmt.Println(A)
-	fmt.Println(B)
-
 	centerOfB := B.Center() // Save center of B for later
 
 	A = A.Moved(A.Min.Scaled(-1)) // Move rectangle to (0,0) for easier calculations
@@ -40,10 +35,5 @@ func ScaleRectToRect(A pixel.Rect, B pixel.Rect) pixel.Rect {
 	}
 
 	B = B.Moved(B.Center().Sub(centerOfB).Scaled(-1))
-
-	fmt.Println(B)
-	fmt.Println(A.W() / A.H())
-	fmt.Println(B.W() / B.H())
-
 	return B
 }
