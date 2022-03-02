@@ -10,10 +10,16 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-const initialWindowWidth = 1024
-const initialWindowHeight = 786
+// --- GLOBALS ---
+const (
+	initialWindowWidth  = 1024
+	initialWindowHeight = 786
+)
 
-var deltaTime float64
+var (
+	DeltaTime     float64
+	prevWinBounds pixel.Rect
+)
 
 func windowInit() *pixelgl.Window {
 	cfg := pixelgl.WindowConfig{
@@ -36,11 +42,13 @@ func windowInit() *pixelgl.Window {
 func Run() {
 
 	win := windowInit()
-	canvas := fractal_manager.Init(win.Bounds(), &deltaTime)
+	prevWinBounds = win.Bounds() // For checking if application window size has been changed
+
+	fractal_manager.Init(win.Bounds())
 
 	prevTime := time.Now()
 	for !win.Closed() {
-		deltaTime = time.Since(prevTime).Seconds()
+		DeltaTime = time.Since(prevTime).Seconds()
 		prevTime = time.Now()
 
 		win.Clear(colornames.Skyblue)
@@ -48,7 +56,7 @@ func Run() {
 		checkUserInput(win)
 		fractal_manager.Update()
 
-		canvas.Draw(win, utils.StretchToFit(canvas, win))
+		fractal_manager.Canvas.Draw(win, utils.StretchToFit(fractal_manager.Canvas, win))
 
 		win.Update()
 	}
