@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"math"
+
 	"github.com/faiface/pixel"
 )
 
@@ -36,4 +38,24 @@ func ScaleRectToRect(A pixel.Rect, B pixel.Rect) pixel.Rect {
 
 	B = B.Moved(B.Center().Sub(centerOfB).Scaled(-1))
 	return B
+}
+
+// Chop given rectangle into uniform horizontal slices
+// If last slice is requested than given block is increased by remainder of the division
+// noSlices - number of Slices
+// sliceNumber - requested slice number indexed from 0
+func ChopHor(r pixel.Rect, noSlices, sliceNumber int32) pixel.Rect {
+
+	res := math.Mod(r.H(), float64(noSlices))
+	rH := r.H() - res
+
+	minY := float64(sliceNumber)*rH/float64(noSlices) + r.Min.Y
+	maxY := minY + rH/float64(noSlices)
+
+	// Check if last slice is requested
+	if sliceNumber+1 == noSlices {
+		maxY += res
+	}
+
+	return pixel.R(r.Min.X, float64(minY), r.Max.X, float64(maxY))
 }

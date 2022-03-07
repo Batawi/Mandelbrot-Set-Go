@@ -59,6 +59,7 @@ func Run() {
 		fractal_manager.Canvas.Draw(win, utils.StretchToFit(fractal_manager.Canvas, win))
 
 		win.Update()
+		// os.Exit(1)
 	}
 }
 

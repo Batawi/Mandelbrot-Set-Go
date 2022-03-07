@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/cmplx"
+	"sync"
 	"time"
 
 	"github.com/Batawi/Mandelbrot-Set-Go/utils"
@@ -29,7 +30,12 @@ var (
 	camZoomSpeed    float64 = 0.5
 	iterationsLimit uint64  = 20
 	iterationsJump  uint64  = 20
-	stop            bool    = false
+	update          bool    = true
+	// maxGoroutines   uint32  = 4 //25ms
+	// maxGoroutines uint32 = 8 //17ms
+	// maxGoroutines uint32 = 16 //15ms
+	// maxGoroutines uint32 = 20 //13ms
+	maxGoroutines uint32 = 25 //15ms
 )
 
 // --- FUNCTIONS ---
@@ -52,13 +58,13 @@ func Update() {
 
 	pixels := make([]uint8, int(windowBounds.Area())*4)
 
-	if !stop {
+	if update {
 		start := time.Now()
-		calculateMandelbrot(windowBounds, fractalBounds, iterCounter, pixels)
+		workDistributor(windowBounds, fractalBounds, iterCounter, pixels)
 		fmt.Println(time.Since(start))
 
 		Canvas.SetPixels(pixels)
-		stop = true
+		update = false
 	}
 
 }
@@ -67,19 +73,42 @@ func Update() {
 Update() -> workDistributor() -> calculateMandelbrot()
 */
 
+// This functions splits up given area and distribute chunks to separate goroutines
 func workDistributor(inR, outR pixel.Rect, iterCounter [][]uint64, pixels []uint8) {
 
+	noWorkers := maxGoroutines
+	// Check if windows is not too small
+	if maxGoroutines > uint32(inR.H()) {
+		noWorkers = uint32(inR.H())
+	}
+
+	// Setup wait group
+	var wg sync.WaitGroup
+	wg.Add(int(noWorkers))
+
+	for i := 0; i < int(noWorkers); i++ {
+
+		i := i
+		go func() {
+			defer wg.Done()
+
+			inRSlice := utils.ChopHor(inR, int32(noWorkers), int32(i))
+			calculateMandelbrot(inRSlice, outR, iterCounter, pixels)
+
+		}()
+	}
+	wg.Wait()
 }
 
 // inR concerns rect of application window
 // outR concerns rect in complex plane
 func calculateMandelbrot(inR, outR pixel.Rect, iterCounter [][]uint64, pixels []uint8) {
 
-	for i := 0; i < int(inR.H()); i++ {
-		for j := 0; j < int(inR.W()); j++ {
+	for i := int(inR.Min.Y); i < int(inR.Max.Y); i++ {
+		for j := int(inR.Min.X); j < int(inR.Max.X); j++ {
 			point := complex(
-				utils.MapValueToRange(float64(j), 0, inR.W(), outR.Min.X, outR.Max.X),
-				utils.MapValueToRange(float64(i), 0, inR.H(), outR.Min.Y, outR.Max.Y))
+				utils.MapValueToRange(float64(j), windowBounds.Min.X, windowBounds.Max.X, outR.Min.X, outR.Max.X),
+				utils.MapValueToRange(float64(i), windowBounds.Min.Y, windowBounds.Max.Y, outR.Min.Y, outR.Max.Y))
 
 			escapingPoint := point
 
@@ -90,7 +119,6 @@ func calculateMandelbrot(inR, outR pixel.Rect, iterCounter [][]uint64, pixels []
 				if cmplx.Abs(escapingPoint) >= 4 { //4
 					break
 				}
-				// escapingPoint = cmplx.Pow(escapingPoint, complex(2, 0)) + point
 				escapingPoint = escapingPoint*escapingPoint + point
 			}
 
@@ -111,7 +139,7 @@ func colorToPixels(i, j, width uint64, pixels []uint8, color pixel.RGBA) {
 
 func calculateColor(iterations uint64, iterlimit uint64, escapedPoint complex128) pixel.RGBA {
 	if iterations == iterlimit {
-		return pixel.RGBA{0, 0, 0, 255}
+		return pixel.RGBA{10, 10, 10, 255}
 	}
 
 	var s float64 //smooth coef
