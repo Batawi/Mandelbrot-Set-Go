@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/cmplx"
+	"time"
 
 	"github.com/Batawi/Mandelbrot-Set-Go/utils"
 	"github.com/faiface/pixel"
@@ -28,6 +29,7 @@ var (
 	camZoomSpeed    float64 = 0.5
 	iterationsLimit uint64  = 20
 	iterationsJump  uint64  = 20
+	stop            bool    = false
 )
 
 // --- FUNCTIONS ---
@@ -49,9 +51,24 @@ func Update() {
 	}
 
 	pixels := make([]uint8, int(windowBounds.Area())*4)
-	calculateMandelbrot(windowBounds, fractalBounds, iterCounter, pixels)
 
-	Canvas.SetPixels(pixels)
+	if !stop {
+		start := time.Now()
+		calculateMandelbrot(windowBounds, fractalBounds, iterCounter, pixels)
+		fmt.Println(time.Since(start))
+
+		Canvas.SetPixels(pixels)
+		stop = true
+	}
+
+}
+
+/*
+Update() -> workDistributor() -> calculateMandelbrot()
+*/
+
+func workDistributor(inR, outR pixel.Rect, iterCounter [][]uint64, pixels []uint8) {
+
 }
 
 // inR concerns rect of application window
@@ -60,7 +77,6 @@ func calculateMandelbrot(inR, outR pixel.Rect, iterCounter [][]uint64, pixels []
 
 	for i := 0; i < int(inR.H()); i++ {
 		for j := 0; j < int(inR.W()); j++ {
-
 			point := complex(
 				utils.MapValueToRange(float64(j), 0, inR.W(), outR.Min.X, outR.Max.X),
 				utils.MapValueToRange(float64(i), 0, inR.H(), outR.Min.Y, outR.Max.Y))
@@ -139,15 +155,8 @@ func CameraMoveCenter(v pixel.Vec) {
 
 // to jest do naprawy, zoom zawsze przyciaga się do punktu 0,0 Potrzebny debug
 func CameraZoom(zoomCounts float64) {
-
-	minX := fractalBounds.Min.X * math.Pow(camZoomSpeed, zoomCounts)
-	minY := fractalBounds.Min.Y * math.Pow(camZoomSpeed, zoomCounts)
-	maxX := fractalBounds.Max.X * math.Pow(camZoomSpeed, zoomCounts)
-	maxY := fractalBounds.Max.Y * math.Pow(camZoomSpeed, zoomCounts)
-
-	fmt.Println(fractalBounds)
-	fractalBounds = pixel.R(minX, minY, maxX, maxY)
-	fmt.Println(fractalBounds)
+	scale := math.Pow(camZoomSpeed, zoomCounts)
+	fractalBounds = fractalBounds.Resized(fractalBounds.Center(), pixel.V(scale, scale))
 }
 
 func IterationsUp() {
@@ -162,3 +171,74 @@ func UpdateWinBounds(r pixel.Rect) {
 	windowBounds = r
 	Canvas.SetBounds(r)
 }
+
+// var wg sync.WaitGroup
+
+// for i := 0; i < int(inR.H()); i++ {
+// 	for j := 0; j < int(inR.W()); j++ {
+// 		wg.Add(1)
+
+// 		i := i
+// 		j := j
+// 		go func() {
+// 			defer wg.Done()
+
+// 			point := complex(
+// 				utils.MapValueToRange(float64(j), 0, inR.W(), outR.Min.X, outR.Max.X),
+// 				utils.MapValueToRange(float64(i), 0, inR.H(), outR.Min.Y, outR.Max.Y))
+
+// 			escapingPoint := point
+
+// 			var color pixel.RGBA
+// 			var iterations uint64 = 0
+// 			for iterations = 0; iterations < iterationsLimit; iterations++ {
+
+// 				if cmplx.Abs(escapingPoint) >= 4 { //4
+// 					break
+// 				}
+// 				// escapingPoint = cmplx.Pow(escapingPoint, complex(2, 0)) + point
+// 				escapingPoint = escapingPoint*escapingPoint + point
+// 			}
+
+// 			iterCounter[i][j] = iterations
+
+// 			color = calculateColor(iterations, iterationsLimit, escapingPoint)
+// 			colorToPixels(uint64(i), uint64(j), uint64(inR.W()), pixels, color)
+// 		}()
+// 	}
+// }
+// wg.Wait()
+
+// ----------------------------------------------------------------------------------
+
+// for i := 0; i < int(inR.H()); i++ {
+// 	for j := 0; j < int(inR.W()); j++ {
+
+// 		i := i
+// 		j := j
+// 		go func() {
+
+// 			point := complex(
+// 				utils.MapValueToRange(float64(j), 0, inR.W(), outR.Min.X, outR.Max.X),
+// 				utils.MapValueToRange(float64(i), 0, inR.H(), outR.Min.Y, outR.Max.Y))
+
+// 			escapingPoint := point
+
+// 			var color pixel.RGBA
+// 			var iterations uint64 = 0
+// 			for iterations = 0; iterations < iterationsLimit; iterations++ {
+
+// 				if cmplx.Abs(escapingPoint) >= 4 { //4
+// 					break
+// 				}
+// 				// escapingPoint = cmplx.Pow(escapingPoint, complex(2, 0)) + point
+// 				escapingPoint = escapingPoint*escapingPoint + point
+// 			}
+
+// 			iterCounter[i][j] = iterations
+
+// 			color = calculateColor(iterations, iterationsLimit, escapingPoint)
+// 			colorToPixels(uint64(i), uint64(j), uint64(inR.W()), pixels, color)
+// 		}()
+// 	}
+// }
