@@ -47,12 +47,6 @@ func checkUserInput(win *pixelgl.Window) {
 		fractal_manager.CameraMoveCenter(win.MousePosition())
 	}
 
-	if win.JustPressed(pixelgl.KeySpace) {
-
-		fractal_manager.Canvas.SetBounds(pixel.R(0, 0, 500, 250))
-
-	}
-
 	scrollCounts := win.MouseScroll().Y
 	if scrollCounts != 0 {
 		fractal_manager.CameraZoom(scrollCounts)

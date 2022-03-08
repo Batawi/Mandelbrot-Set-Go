@@ -19,6 +19,14 @@ import (
 // }
 
 // --- GLOBALS ---
+
+type states uint8
+
+const (
+	wait states = iota
+	update
+)
+
 var (
 	Canvas       *pixelgl.Canvas
 	windowBounds pixel.Rect // This is size of application window
@@ -26,10 +34,10 @@ var (
 
 	fractalBounds           = pixel.R(-2, -2, 2, 2)
 	moveSpeed               = 0.0001
-	camZoomSpeed    float64 = 0.5
+	camZoomSpeed    float64 = 0.8
 	iterationsLimit uint64  = 20
 	iterationsJump  uint64  = 20
-	update          bool    = true
+	machineState    states  = update
 	bailoutRange    float64 = 8  // By definition should be 2 (or 4 if we dont sqrt() both sides) but higher values don't creates color bands
 	maxGoroutines   uint32  = 25 //8ms
 	// maxGoroutines uint32 = 1
@@ -55,13 +63,13 @@ func Update() {
 
 	pixels := make([]uint8, int(windowBounds.Area())*4)
 
-	if update {
+	if machineState == update {
 		start := time.Now()
 		workDistributor(windowBounds, fractalBounds, iterCounter, pixels)
 		fmt.Println(time.Since(start))
 
 		Canvas.SetPixels(pixels)
-		update = false
+		machineState = wait
 	}
 }
 
@@ -173,22 +181,22 @@ func calculateColor(iterations uint64, iterlimit uint64, x, y float64) pixel.RGB
 
 func CameraMoveUp() {
 	fractalBounds = fractalBounds.Moved(pixel.V(0, windowBounds.H()*moveSpeed))
-	update = true
+	machineState = update
 }
 
 func CameraMoveDown() {
 	fractalBounds = fractalBounds.Moved(pixel.V(0, windowBounds.H()*moveSpeed*-1))
-	update = true
+	machineState = update
 }
 
 func CameraMoveRight() {
 	fractalBounds = fractalBounds.Moved(pixel.V(windowBounds.H()*moveSpeed, 0))
-	update = true
+	machineState = update
 }
 
 func CameraMoveLeft() {
 	fractalBounds = fractalBounds.Moved(pixel.V(windowBounds.H()*moveSpeed*-1, 0))
-	update = true
+	machineState = update
 }
 
 func CameraMove(v pixel.Vec) {
@@ -196,7 +204,7 @@ func CameraMove(v pixel.Vec) {
 	v.Y = utils.MapValueToRange(v.Y, 0, windowBounds.H(), 0, fractalBounds.H())
 
 	fractalBounds = fractalBounds.Moved(v)
-	update = true
+	machineState = update
 }
 
 func CameraMoveCenter(v pixel.Vec) {
@@ -204,28 +212,28 @@ func CameraMoveCenter(v pixel.Vec) {
 	v.Y = utils.MapValueToRange(v.Y, 0, windowBounds.H(), fractalBounds.Min.Y, fractalBounds.Max.Y)
 
 	fractalBounds = fractalBounds.Moved(v.Sub(fractalBounds.Center()))
-	update = true
+	machineState = update
 }
 
 // to jest do naprawy, zoom zawsze przyciaga się do punktu 0,0 Potrzebny debug
 func CameraZoom(zoomCounts float64) {
 	scale := math.Pow(camZoomSpeed, zoomCounts)
-	fractalBounds = fractalBounds.Resized(fractalBounds.Center(), pixel.V(scale, scale))
-	update = true
+	fractalBounds = utils.ScaleRect(fractalBounds, scale)
+	machineState = update
 }
 
 func IterationsUp() {
 	iterationsLimit += iterationsJump
-	update = true
+	machineState = update
 }
 
 func IterationsDown() {
 	iterationsLimit -= iterationsJump
-	update = true
+	machineState = update
 }
 
 func UpdateWinBounds(r pixel.Rect) {
 	windowBounds = r
 	Canvas.SetBounds(r)
-	update = true
+	machineState = update
 }
