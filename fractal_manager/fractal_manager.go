@@ -2,7 +2,6 @@ package fractal_manager
 
 import (
 	"fmt"
-	"math"
 	"sync"
 	"time"
 
@@ -163,77 +162,4 @@ func colorToPixels(i, j, width uint64, pixels []uint8, color pixel.RGBA) {
 	pixels[4*(i*width+j)+1] = uint8(color.G)
 	pixels[4*(i*width+j)+2] = uint8(color.B)
 	pixels[4*(i*width+j)+3] = uint8(color.A)
-}
-
-func calculateColor(iterations uint64, iterlimit uint64, x, y float64) pixel.RGBA {
-	if iterations == iterlimit {
-		return pixel.RGBA{10, 10, 10, 255}
-	}
-
-	var s float64 //smooth coef
-
-	s = float64(iterations) + 1.0 - math.Log(math.Log(math.Sqrt(x*x+y*y)))/math.Log(2)
-
-	s /= (float64(iterlimit))
-
-	return pixel.RGBA{s * 250, 10, 10, 255}
-}
-
-func CameraMoveUp() {
-	fractalBounds = fractalBounds.Moved(pixel.V(0, windowBounds.H()*moveSpeed))
-	machineState = update
-}
-
-func CameraMoveDown() {
-	fractalBounds = fractalBounds.Moved(pixel.V(0, windowBounds.H()*moveSpeed*-1))
-	machineState = update
-}
-
-func CameraMoveRight() {
-	fractalBounds = fractalBounds.Moved(pixel.V(windowBounds.H()*moveSpeed, 0))
-	machineState = update
-}
-
-func CameraMoveLeft() {
-	fractalBounds = fractalBounds.Moved(pixel.V(windowBounds.H()*moveSpeed*-1, 0))
-	machineState = update
-}
-
-func CameraMove(v pixel.Vec) {
-	v.X = utils.MapValueToRange(v.X, 0, windowBounds.W(), 0, fractalBounds.W())
-	v.Y = utils.MapValueToRange(v.Y, 0, windowBounds.H(), 0, fractalBounds.H())
-
-	fractalBounds = fractalBounds.Moved(v)
-	machineState = update
-}
-
-func CameraMoveCenter(v pixel.Vec) {
-	v.X = utils.MapValueToRange(v.X, 0, windowBounds.W(), fractalBounds.Min.X, fractalBounds.Max.X)
-	v.Y = utils.MapValueToRange(v.Y, 0, windowBounds.H(), fractalBounds.Min.Y, fractalBounds.Max.Y)
-
-	fractalBounds = fractalBounds.Moved(v.Sub(fractalBounds.Center()))
-	machineState = update
-}
-
-// to jest do naprawy, zoom zawsze przyciaga się do punktu 0,0 Potrzebny debug
-func CameraZoom(zoomCounts float64) {
-	scale := math.Pow(camZoomSpeed, zoomCounts)
-	fractalBounds = utils.ScaleRect(fractalBounds, scale)
-	machineState = update
-}
-
-func IterationsUp() {
-	iterationsLimit += iterationsJump
-	machineState = update
-}
-
-func IterationsDown() {
-	iterationsLimit -= iterationsJump
-	machineState = update
-}
-
-func UpdateWinBounds(r pixel.Rect) {
-	windowBounds = r
-	Canvas.SetBounds(r)
-	machineState = update
 }
