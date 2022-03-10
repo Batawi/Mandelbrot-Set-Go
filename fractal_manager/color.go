@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/faiface/pixel"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 func calculateColor(iterations uint64, iterlimit uint64, x, y float64) pixel.RGBA {
@@ -17,5 +18,10 @@ func calculateColor(iterations uint64, iterlimit uint64, x, y float64) pixel.RGB
 
 	s /= (float64(iterlimit))
 
-	return pixel.RGBA{s * 250, 10, 10, 255}
+	// c := colorful.Hsl(s*360.0, 1, 100)
+	c := colorful.Hsv(s*360.0, 1, 199)
+
+	// return pixel.RGBA{s * 250, 10, 10, 255}
+	// return pixel.RGBA{c.R, c.G, c.B, 255}
+	return pixel.RGBA{c.R, c.G, c.B, 215}
 }

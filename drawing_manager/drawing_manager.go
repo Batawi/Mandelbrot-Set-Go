@@ -14,6 +14,8 @@ import (
 const (
 	initialWindowWidth  = 1024
 	initialWindowHeight = 786
+	// initialWindowWidth  = 2024
+	// initialWindowHeight = 1586
 )
 
 var (

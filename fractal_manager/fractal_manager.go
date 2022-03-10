@@ -18,12 +18,12 @@ import (
 // }
 
 // --- GLOBALS ---
-
 type states uint8
 
 const (
 	wait states = iota
 	update
+	updateColors
 )
 
 var (
@@ -34,12 +34,12 @@ var (
 	fractalBounds           = pixel.R(-2, -2, 2, 2)
 	moveSpeed               = 0.0001
 	camZoomSpeed    float64 = 0.8
-	iterationsLimit uint64  = 20
+	iterationsLimit uint64  = 100
 	iterationsJump  uint64  = 20
 	machineState    states  = update
-	bailoutRange    float64 = 8  // By definition should be 2 (or 4 if we dont sqrt() both sides) but higher values don't creates color bands
-	maxGoroutines   uint32  = 25 //8ms
-	// maxGoroutines uint32 = 1
+	bailoutRange    float64 = 8 // By definition should be 2 (or 4 if we dont sqrt() both sides) but higher values don't creates color bands
+	// maxGoroutines   uint32  = 25 //8ms
+	maxGoroutines uint32 = 1
 )
 
 // --- FUNCTIONS ---

@@ -55,12 +55,15 @@ func IterationsUp() {
 }
 
 func IterationsDown() {
-	iterationsLimit -= iterationsJump
-	machineState = update
+	if iterationsLimit > iterationsJump {
+		iterationsLimit -= iterationsJump
+		machineState = update
+	}
 }
 
 func UpdateWinBounds(r pixel.Rect) {
 	windowBounds = r
+	fractalBounds = utils.ScaleRectToRect(windowBounds, fractalBounds)
 	Canvas.SetBounds(r)
 	machineState = update
 }
