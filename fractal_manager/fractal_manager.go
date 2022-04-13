@@ -2,6 +2,7 @@ package fractal_manager
 
 import (
 	"fmt"
+	"math/big"
 	"sync"
 	"time"
 
@@ -31,8 +32,9 @@ var (
 	windowBounds pixel.Rect // This is size of application window
 	// fractalResolution float64    = 0.5
 
-	fractalBounds           = pixel.R(-2, -2, 2, 2)
-	moveSpeed               = 0.0001
+	// fractalBounds           = pixel.R(-2, -2, 2, 2)
+	fractalBounds           = BigR(*big.NewFloat(-2), -2, 2, 2)
+	moveSpeed               = 0.00010
 	camZoomSpeed    float64 = 0.8
 	iterationsLimit uint64  = 100
 	iterationsJump  uint64  = 20
