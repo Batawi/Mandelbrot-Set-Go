@@ -37,9 +37,9 @@ var (
 	iterationsLimit uint64  = 100
 	iterationsJump  uint64  = 20
 	machineState    states  = update
-	bailoutRange    float64 = 8 // By definition should be 2 (or 4 if we dont sqrt() both sides) but higher values don't creates color bands
-	// maxGoroutines   uint32  = 25 //8ms
-	maxGoroutines uint32 = 1
+	bailoutRange    float64 = 8  // By definition should be 2 (or 4 if we dont sqrt() both sides) but higher values don't creates color bands
+	maxGoroutines   uint32  = 25 //8ms
+	// maxGoroutines uint32 = 1
 )
 
 // --- FUNCTIONS ---

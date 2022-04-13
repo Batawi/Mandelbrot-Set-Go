@@ -1,6 +1,7 @@
 package fractal_manager
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/Batawi/Mandelbrot-Set-Go/utils"
@@ -50,8 +51,10 @@ func CameraZoom(zoomCounts float64) {
 }
 
 func IterationsUp() {
-	iterationsLimit += iterationsJump
+	// iterationsLimit += iterationsJump
+	iterationsLimit = iterationsLimit + iterationsLimit*iterationsJump/100
 	machineState = update
+	fmt.Println("iterations limit: ", iterationsLimit)
 }
 
 func IterationsDown() {
@@ -59,6 +62,7 @@ func IterationsDown() {
 		iterationsLimit -= iterationsJump
 		machineState = update
 	}
+	fmt.Println("iterations limit: ", iterationsLimit)
 }
 
 func UpdateWinBounds(r pixel.Rect) {
